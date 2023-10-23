@@ -1,0 +1,62 @@
+from flask import Flask, render_template, request, redirect, url_for
+import sqlite3
+
+app = Flask(__name)
+
+# Create an SQLite database and a table to store bus details
+conn = sqlite3.connect('bus_details.db')
+cursor = conn.cursor()
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS buses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        bus_number TEXT,
+        route TEXT,
+        capacity INTEGER
+    )
+''')
+conn.commit()
+conn.close()
+
+# Home page
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+# Add a new bus
+@app.route('/add_bus', methods=['POST'])
+def add_bus():
+    bus_number = request.form['bus_number']
+    route = request.form['route']
+    capacity = request.form['capacity']
+
+    conn = sqlite3.connect('bus_details.db')
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO buses (bus_number, route, capacity) VALUES (?, ?, ?)', (bus_number, route, capacity))
+    conn.commit()
+    conn.close()
+    
+    return redirect(url_for('list_buses'))
+
+# List all buses
+@app.route('/list_buses')
+def list_buses():
+    conn = sqlite3.connect('bus_details.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM buses')
+    data = cursor.fetchall()
+    conn.close()
+
+    buses = []
+    for bus in data:
+        bus_details = {
+            'id': bus[0],
+            'bus_number': bus[1],
+            'route': bus[2],
+            'capacity': bus[3]
+        }
+        buses.append(bus_details)
+
+    return render_template('list_buses.html', buses=buses)
+
+if _name_ == '_main_':
+    app.run(debug=True)

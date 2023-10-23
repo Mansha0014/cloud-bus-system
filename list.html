@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>List of Buses</title>
+</head>
+<body>
+    <h1>List of Buses</h1>
+    <ul>
+        {% for bus in buses %}
+        <li>Bus Number: {{ bus.bus_number }} | Route: {{ bus.route }} | Capacity: {{ bus.capacity }}</li>
+        {% endfor %}
+    </ul>
+    <h2><a href="/">Back to Home</a></h2>
+</body>
+</html>
